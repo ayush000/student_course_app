@@ -2,12 +2,8 @@ import React from 'react';
 import { Input, Icon } from 'antd';
 import { browserHistory } from 'react-router';
 import './Login.css';
-let baseUrl = '';
-if (process.env.NODE_ENV === 'production') {
-  baseUrl = '';
-} else {
-  baseUrl = 'http://localhost:9000';
-}
+import { baseUrl } from './constants';
+
 class Login extends React.Component {
   constructor(props) {
     super(props);
@@ -20,7 +16,7 @@ class Login extends React.Component {
     const { value } = e.target;
     const reg = /^\d*$/;
     if (!isNaN(value) && reg.test(value)) {
-      this.setState({ userId: e.target.value });
+      this.setState({ userId: value });
     }
   }
 
@@ -45,7 +41,7 @@ class Login extends React.Component {
         if (response.type === 'error') {
           alert(response.text);
         } else {
-          localStorage.setItem('userId', userId);
+          sessionStorage.setItem('userId', userId);
           browserHistory.push('/');
         }
       });
