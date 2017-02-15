@@ -10,7 +10,7 @@ ReactDOM.render(
   <Router history={browserHistory}>
     <Route path="/" component={App} />
     <Route path="/login" component={Login} />
-    <Route path="*" status={404} component={NotFound} />
+    <Route path="*" component={NotFound} />
   </Router>,
   document.getElementById('root')
 );

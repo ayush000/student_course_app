@@ -32,7 +32,6 @@ class Login extends React.Component {
     console.log(url);
     fetch(url)
       .then(response => {
-        console.log(response);
         if (response && response.status < 400) {
           return response;
         } else {
