@@ -1,19 +1,17 @@
 import React from 'react';
-import { Table, Button, Radio, Input, Select } from 'antd';
-const Option = Select.Option;
+import { Table, Button } from 'antd'
 import { baseUrl } from './constants';
+import './CourseTable.css';
+import TableOperations from './TableOperations';
 
-class App extends React.Component {
+export default class CourseTable extends React.Component {
 
   constructor() {
     super();
     this.state = {
       dataSource: [],
       selectedRows: [],
-      radioSelected: 'all',
       filteredData: [],
-      searchText: '',
-      professorsSelected: [],
     };
   }
 
@@ -40,18 +38,6 @@ class App extends React.Component {
 
   onSelectChange = (selectedRowKeys, selectedRows) => {
     this.setState({ selectedRows });
-  }
-
-  onSearch = (e) => {
-    const { value } = e.target;
-    this.filterTable(value, this.state.professorsSelected);
-    this.setState({ searchText: value });
-    // this.setState({ filterDropdownVisible: false });
-  }
-
-  onProfessorSelect = (professorsSelected) => {
-    this.filterTable(this.state.searchText, professorsSelected);
-    this.setState({ professorsSelected });
   }
 
   filterTable = (searchText, professorsSelected) => {
@@ -85,7 +71,7 @@ class App extends React.Component {
   }
 
   render() {
-    const { filteredData, radioSelected, professorsSelected } = this.state;
+    const { filteredData } = this.state;
     const columns = [
       {
         'title': 'Course code',
@@ -120,27 +106,7 @@ class App extends React.Component {
 
     return (
       <div className="App">
-        <div className="table-operations">
-          <Radio.Group size="default" value={radioSelected}
-            onChange={(e) => this.setState({ radioSelected: e.target.value })}>
-            <Radio.Button value="all">All</Radio.Button>
-            <Radio.Button value="recommended">Recommended</Radio.Button>
-          </Radio.Group>
-          <Input
-            placeholder="Search name"
-            style={{ width: '30%' }}
-            onChange={this.onSearch}
-            value={this.state.searchText}
-          />
-          <Select tags
-            value={professorsSelected}
-            style={{ width: '30%' }}
-            placeholder="Choose professors"
-            onChange={this.onProfessorSelect}>
-            <Option key="Abraham Lincoln">Abraham Lincoln</Option>
-            <Option key="Isaac Newton">Isaac Newton</Option>
-          </Select>
-        </div>
+        <TableOperations filterTable={this.filterTable} />
         <Table rowSelection={rowSelection} columns={columns} dataSource={filteredData} />
         <div className="App">
           <Button type="primary" onClick={this.submitCourses}>Submit</Button>
@@ -149,5 +115,3 @@ class App extends React.Component {
     );
   }
 }
-
-export default App;
