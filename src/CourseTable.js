@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Button } from 'antd'
+import { Table, Button } from 'antd';
 import { baseUrl } from './constants';
 import './CourseTable.css';
 import TableOperations from './TableOperations';
@@ -15,8 +15,8 @@ export default class CourseTable extends React.Component {
     };
   }
 
-  componentDidMount() {
-    fetch(`${baseUrl}/api/courses`)
+  fetchCourses = (type) => {
+    fetch(`${baseUrl}/api/courses/${type}?userId=${this.props.userId}`)
       .then(response => {
         if (response && response.status < 400) {
           return response;
@@ -34,6 +34,9 @@ export default class CourseTable extends React.Component {
           filteredData: res.response,
         });
       });
+  }
+  componentDidMount() {
+    this.fetchCourses('all');
   }
 
   onSelectChange = (selectedRowKeys, selectedRows) => {
@@ -54,6 +57,10 @@ export default class CourseTable extends React.Component {
         professorsSelected.indexOf(row['Taught by']) > -1);
     }
     this.setState({ filteredData });
+  }
+
+  onCourseSwitch = (type) => {
+    this.fetchCourses(type);
   }
 
   alphabeticSorter = (param, a, b) => {
@@ -105,10 +112,10 @@ export default class CourseTable extends React.Component {
     };
 
     return (
-      <div className="App">
-        <TableOperations filterTable={this.filterTable} />
+      <div>
+        <TableOperations filterTable={this.filterTable} onCourseSwitch={this.onCourseSwitch} />
         <Table rowSelection={rowSelection} columns={columns} dataSource={filteredData} />
-        <div className="App">
+        <div>
           <Button type="primary" onClick={this.submitCourses}>Submit</Button>
         </div>
       </div>

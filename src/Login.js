@@ -21,11 +21,9 @@ class Login extends React.Component {
   }
 
   onSubmit = (e) => {
-    console.log('Submitted');
     const userId = this.state.userId;
     this.setState({ userId: '' });
     const url = `${baseUrl}/api/checkUser?id=${userId}`;
-    console.log(url);
     fetch(url)
       .then(response => {
         if (response && response.status < 400) {
@@ -42,6 +40,7 @@ class Login extends React.Component {
           alert(response.text);
         } else {
           sessionStorage.setItem('userId', userId);
+          sessionStorage.setItem('userName', response.userName);
           browserHistory.push('/');
         }
       });

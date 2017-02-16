@@ -3,10 +3,12 @@ const morgan = require('morgan');
 const path = require('path');
 const cors = require('cors');
 const mysql = require('mysql');
+const queries = require('./queries');
 
+const { NODE_ENV } = process.env;
 const app = express();
 let connection;
-if (process.env.NODE_ENV === 'production') {
+if (NODE_ENV === 'production') {
   connection = mysql.createConnection(process.env.CLEARDB_DATABASE_URL);
 } else {
   connection = mysql.createConnection({
@@ -14,6 +16,7 @@ if (process.env.NODE_ENV === 'production') {
     user: 'ayush',
     password: 'f6Ugm4cgPfGr',
     database: 'course_app',
+    debug: NODE_ENV === 'production' ? false : ['ComQueryPacket'],
   });
 }
 
@@ -47,25 +50,59 @@ app.get('/api/checkUser', (req, res) => {
     }
     res.send({
       'type': 'success',
+      'userName': response[0].name,
     });
   });
 });
 
-app.get('/api/courses', (req, res) => {
-  const allCoursesQuery = 'SELECT a.course_id `key`, `Course code`, `Name`, `Category`, `Taught by`, cpr_name `Prerequisite`,a.`Credits` FROM (SELECT c.id `course_id`, c.code `Course code`, c.`Name` `Name`, cat.name `Category`, p.name `Taught by`, c.credits `Credits` FROM course c, professor p, category cat WHERE c.professor_id = p.id AND c.category_id = cat.id) a LEFT JOIN (SELECT cpr.course_id `course_id`, c.name `cpr_name` FROM course_prerequisite cpr, course c WHERE c.id = cpr.prerequisite_course_id) b ON a.course_id = b.course_id';
-  const q = connection.query(allCoursesQuery, (err, response) => {
-    if (err || response.length === 0) {
-      return res.status(500).send({
-        'type': 'error',
-        'text': 'No response to display',
-        'query': q.sql,
-      });
-    }
-    res.send({
-      'type': 'success',
-      'response': response,
+
+
+app.get('/api/courses/all', (req, res) => {
+  const { userId } = req.query;
+  if (!userId) {
+    return res.status(404).send({
+      'type': 'error',
+      'text': 'No user sent',
     });
-  });
+  }
+  const q = connection.query(queries.allCoursesQuery, [userId, userId, userId],
+    (err, response) => {
+      if (err) {
+        return res.status(500).send({
+          'type': 'error',
+          'text': 'No response to display',
+          'query': q.sql,
+        });
+      }
+      res.send({
+        'type': 'success',
+        'response': response,
+      });
+    });
+});
+
+app.get('/api/courses/recommended', (req, res) => {
+  const { userId } = req.query;
+  if (!userId) {
+    return res.status(404).send({
+      'type': 'error',
+      'text': 'No user sent',
+    });
+  }
+  const q = connection.query(queries.recommendedCoursesQuery, [userId, userId],
+    (err, response) => {
+      if (err) {
+        return res.status(500).send({
+          'type': 'error',
+          'text': 'No response to display',
+          'query': q.sql,
+        });
+      }
+      res.send({
+        'type': 'success',
+        'response': response,
+      });
+    });
 });
 
 // Always return the main index.html, so react-router render the route in the client

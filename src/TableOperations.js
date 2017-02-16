@@ -18,6 +18,12 @@ export default class TableOperations extends React.Component {
     this.setState({ searchText: value });
   }
 
+  onCourseSwitch = (e) => {
+    const radioSelected = e.target.value;
+    this.setState({ radioSelected });
+    this.props.onCourseSwitch(radioSelected);
+  }
+
   onProfessorSelect = (professorsSelected) => {
     this.props.filterTable(this.state.searchText, professorsSelected);
     this.setState({ professorsSelected });
@@ -27,7 +33,7 @@ export default class TableOperations extends React.Component {
     return (
       <div className="table-operations">
         <Radio.Group size="default" value={radioSelected}
-          onChange={(e) => this.setState({ radioSelected: e.target.value })}>
+          onChange={this.onCourseSwitch}>
           <Radio.Button value="all">All</Radio.Button>
           <Radio.Button value="recommended">Recommended</Radio.Button>
         </Radio.Group>
