@@ -2,7 +2,7 @@ import CourseTable from './CourseTable';
 import React from 'react';
 import { browserHistory } from 'react-router';
 import { Button } from 'antd';
-const baseUrl = require('../constants').baseUrl;
+import { baseUrl } from './constants';
 
 export default class App extends React.Component {
 

@@ -11,4 +11,4 @@ Design a dashboard for students to pick courses. (14 credits of majors is requir
 
 It should have filters to check courses. And show data based on his past courses
 
-If you have any questions, feel free to drop me an email or whatsapp anytime.
+## [Live demo here](http://student-course.herokuapp.com)

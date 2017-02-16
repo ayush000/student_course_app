@@ -1,6 +1,6 @@
 import React from 'react';
 import { Table, Button } from 'antd';
-const baseUrl = require('../constants').baseUrl;
+import { baseUrl } from './constants';
 import './CourseTable.css';
 import TableOperations from './TableOperations';
 

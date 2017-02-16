@@ -8,13 +8,5 @@ const majorCredits = {
   maximum: 1000,
 };
 
-let baseUrl;
-if (process.env.NODE_ENV === 'production') {
-  baseUrl = '';
-} else {
-  baseUrl = 'http://localhost:9000';
-}
-
 exports.credits = credits;
 exports.majorCredits = majorCredits;
-exports.baseUrl = baseUrl;

@@ -2,7 +2,7 @@ import React from 'react';
 import { Input, Icon } from 'antd';
 import { browserHistory } from 'react-router';
 import './Login.css';
-const baseUrl = require('../constants').baseUrl;
+import { baseUrl } from './constants';
 
 class Login extends React.Component {
   constructor(props) {
