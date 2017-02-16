@@ -2,32 +2,12 @@ const express = require('express');
 const morgan = require('morgan');
 const path = require('path');
 const cors = require('cors');
-const mysql = require('mysql');
+
 const queries = require('./queries');
 const bodyParser = require('body-parser');
 const databaseHandler = require('./databaseHandler');
-const { NODE_ENV } = process.env;
 const app = express();
-let connection;
-if (NODE_ENV === 'production') {
-  connection = mysql.createConnection(process.env.CLEARDB_DATABASE_URL);
-} else {
-  connection = mysql.createConnection({
-    host: '127.0.0.1',
-    user: 'ayush',
-    password: 'f6Ugm4cgPfGr',
-    database: 'course_app',
-    debug: NODE_ENV === 'production' ? false : ['ComQueryPacket'],
-  });
-}
-
-connection.connect((err) => {
-  if (err) {
-    console.error('error connecting: ' + err);
-    return;
-  }
-  console.log('connected as id ' + connection.threadId);
-});
+const connection = require('./mysql');
 
 // Setup logger
 app.use(morgan('dev'));
