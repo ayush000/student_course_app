@@ -5,12 +5,17 @@ const cors = require('cors');
 const mysql = require('mysql');
 
 const app = express();
-const connection = mysql.createConnection({
-  host: '127.0.0.1',
-  user: 'ayush',
-  password: 'f6Ugm4cgPfGr',
-  database: 'course_app',
-});
+let connection;
+if (process.env.NODE_ENV === 'production') {
+  connection = mysql.createConnection(process.env.CLEARDB_DATABASE_URL);
+} else {
+  connection = mysql.createConnection({
+    host: '127.0.0.1',
+    user: 'ayush',
+    password: 'f6Ugm4cgPfGr',
+    database: 'course_app',
+  });
+}
 
 connection.connect((err) => {
   if (err) {

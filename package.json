@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
-    "nodemon": "^1.11.0",
-    "react-scripts": "0.9.0"
+    "nodemon": "^1.11.0"
   },
   "dependencies": {
+    "react-scripts": "0.9.0",
     "antd": "^2.7.1",
     "body-parser": "^1.16.1",
     "compression": "^1.6.2",
@@ -20,8 +20,8 @@
   },
   "scripts": {
     "dev": "nodemon server/app.js",
-    "prod": "NODE_ENV=production react-scripts build && node server/app.js",
-    "start": "react-scripts start",
+    "start": "NODE_ENV=production react-scripts build && node server/app.js",
+    "react": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
