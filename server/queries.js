@@ -1,6 +1,7 @@
 // Query to fetch recommended courses for student, where he satisfies all prerequisites
 // takes student ID twice as parameter
-const recommendedCoursesQuery = 'SELECT ' +
+const checkUserQuery = 'SELECT * FROM student WHERE id = ?';
+const recommendedCoursesSubQuery = 'SELECT ' +
   '  prereq.course_id ' +
   'FROM ( ' +
   '  SELECT ' +
@@ -26,11 +27,12 @@ const recommendedCoursesQuery = 'SELECT ' +
   '  WHERE ' +
   '    student_id = ?) AS sc ' +
   'ON ' +
-  '  prereq.prerequisite_course_id = sc.course_id GROUP BY prereq.course_id HAVING COUNT(1) = COUNT(sc.course_id)';
+  '  prereq.prerequisite_course_id = sc.course_id GROUP BY prereq.course_id ' +
+  '    HAVING COUNT(1) = COUNT(sc.course_id)';
 
 // Takes student id as parameter and lists all courses for which the student is eligible
 // student id is required as query parameter thrice
-const allCoursesQuery = 'SELECT ' +
+const baseQuery = 'SELECT ' +
   '  a.course_id `key`, ' +
   '  `Course code`, ' +
   '  `Name`, ' +
@@ -77,10 +79,26 @@ const allCoursesQuery = 'SELECT ' +
   '  `Name`, ' +
   '  `Category`, ' +
   '  `Taught by`, ' +
-  '  `Credits` ' +
+  '  `Credits` ';
+const allCoursesQuery = baseQuery +
   'HAVING ' +
   '  (Prerequisite IS NULL ' +
-  '    OR `key` IN (' + recommendedCoursesQuery + '))';
+  '    OR `key` IN (' + recommendedCoursesSubQuery + '))';
+const recommendedCoursesQuery = baseQuery + 'HAVING ' +
+  '  (`key` IN (' + recommendedCoursesSubQuery + '))';
+
+const validateQuery = 'SELECT ' +
+  '  SUM(credits) total, ' +
+  '  SUM(IF(category_id = 1, credits, 0)) major ' +
+  'FROM ' +
+  '  course ' +
+  'WHERE ' +
+  '  id IN (?)';
+const storeCoursesQuery = 'INSERT INTO student_course (student_id, course_id) VALUES ?';
+
 
 exports.recommendedCoursesQuery = recommendedCoursesQuery;
 exports.allCoursesQuery = allCoursesQuery;
+exports.validateQuery = validateQuery;
+exports.checkUserQuery = checkUserQuery;
+exports.storeCoursesQuery = storeCoursesQuery;

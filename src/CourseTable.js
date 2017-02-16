@@ -1,6 +1,6 @@
 import React from 'react';
 import { Table, Button } from 'antd';
-import { baseUrl } from './constants';
+const baseUrl = require('../constants').baseUrl;
 import './CourseTable.css';
 import TableOperations from './TableOperations';
 
@@ -10,8 +10,8 @@ export default class CourseTable extends React.Component {
     super();
     this.state = {
       dataSource: [],
-      selectedRows: [],
       filteredData: [],
+      professors: [],
     };
   }
 
@@ -28,19 +28,19 @@ export default class CourseTable extends React.Component {
       })
       .then(response => response.json())
       .then(res => {
-        // const response = res.response;
+        const dataSource = res.response;
+        const professors = dataSource.map(row => row['Taught by']);
+        const uniqProfessors = [...new Set(professors)];
         this.setState({
-          dataSource: res.response,
-          filteredData: res.response,
+          dataSource,
+          filteredData: dataSource,
+          professors: uniqProfessors,
         });
       });
   }
+
   componentDidMount() {
     this.fetchCourses('all');
-  }
-
-  onSelectChange = (selectedRowKeys, selectedRows) => {
-    this.setState({ selectedRows });
   }
 
   filterTable = (searchText, professorsSelected) => {
@@ -64,7 +64,6 @@ export default class CourseTable extends React.Component {
   }
 
   alphabeticSorter = (param, a, b) => {
-
     const nameA = a[param].toUpperCase(); // ignore upper and lowercase
     const nameB = b[param].toUpperCase(); // ignore upper and lowercase
     if (nameA < nameB) {
@@ -107,16 +106,20 @@ export default class CourseTable extends React.Component {
         'sorter': (a, b) => a.Credits - b.Credits,
       },
     ];
-    const rowSelection = {
-      onChange: this.onSelectChange,
-    };
 
+    const rowSelection = {
+      onChange: this.props.onSelectChange,
+    };
     return (
       <div>
-        <TableOperations filterTable={this.filterTable} onCourseSwitch={this.onCourseSwitch} />
+        <TableOperations filterTable={this.filterTable}
+          onCourseSwitch={this.onCourseSwitch}
+          professors={this.state.professors} />
         <Table rowSelection={rowSelection} columns={columns} dataSource={filteredData} />
         <div>
-          <Button type="primary" onClick={this.submitCourses}>Submit</Button>
+          <Button type="primary"
+            disabled={this.props.buttonDisabled}
+            onClick={this.props.submitCourses}>Submit</Button>
         </div>
       </div>
     );

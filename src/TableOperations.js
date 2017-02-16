@@ -28,6 +28,7 @@ export default class TableOperations extends React.Component {
     this.props.filterTable(this.state.searchText, professorsSelected);
     this.setState({ professorsSelected });
   }
+
   render() {
     const { radioSelected, professorsSelected } = this.state;
     return (
@@ -41,15 +42,14 @@ export default class TableOperations extends React.Component {
           placeholder="Search name"
           style={{ width: '30%' }}
           onChange={this.onSearch}
-          value={this.state.searchText}
-        />
+          value={this.state.searchText} />
         <Select tags
           value={professorsSelected}
           style={{ width: '30%' }}
           placeholder="Choose professors"
           onChange={this.onProfessorSelect}>
-          <Option key="Abraham Lincoln">Abraham Lincoln</Option>
-          <Option key="Isaac Newton">Isaac Newton</Option>
+          {this.props.professors.map(prof =>
+            <Option key={prof}>{prof}</Option>)}
         </Select>
       </div>
     );

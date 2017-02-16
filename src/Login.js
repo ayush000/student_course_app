@@ -2,7 +2,7 @@ import React from 'react';
 import { Input, Icon } from 'antd';
 import { browserHistory } from 'react-router';
 import './Login.css';
-import { baseUrl } from './constants';
+const baseUrl = require('../constants').baseUrl;
 
 class Login extends React.Component {
   constructor(props) {
@@ -45,6 +45,7 @@ class Login extends React.Component {
         }
       });
   }
+
   render() {
     return (
       <div className="form-container">

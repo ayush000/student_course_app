@@ -4,7 +4,8 @@ const path = require('path');
 const cors = require('cors');
 const mysql = require('mysql');
 const queries = require('./queries');
-
+const bodyParser = require('body-parser');
+const databaseHandler = require('./databaseHandler');
 const { NODE_ENV } = process.env;
 const app = express();
 let connection;
@@ -35,15 +36,19 @@ app.use(cors());
 // Serve static assets
 app.use(express.static(path.resolve(__dirname, '..', 'build')));
 
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }));
+// parse application/json
+app.use(bodyParser.json());
+
 app.get('/api/checkUser', (req, res) => {
-  const user_id = req.query.id;
-  const checkStudentQuery = 'SELECT * FROM student WHERE id = ?';
-  const q = connection.query(checkStudentQuery, [user_id], (err, response) => {
-    if (err || response.length === 0) {
+  const userId = req.query.id;
+  const q = connection.query(queries.checkUserQuery, [userId], (error, response) => {
+    if (error || response.length === 0) {
       const errorObj = {
-        'type': 'error',
-        'text': `No such user found`,
-        'query': q.sql,
+        type: 'error',
+        error,
+        query: error.query,
       };
       console.log(errorObj, q.sql);
       return res.send(errorObj);
@@ -61,22 +66,23 @@ app.get('/api/courses/all', (req, res) => {
   const { userId } = req.query;
   if (!userId) {
     return res.status(404).send({
-      'type': 'error',
-      'text': 'No user sent',
+      type: 'error',
+      text: 'No user sent',
     });
   }
+
   const q = connection.query(queries.allCoursesQuery, [userId, userId, userId],
     (err, response) => {
       if (err) {
         return res.status(500).send({
-          'type': 'error',
-          'text': 'No response to display',
-          'query': q.sql,
+          type: 'error',
+          err,
+          query: q.sql,
         });
       }
       res.send({
-        'type': 'success',
-        'response': response,
+        type: 'success',
+        response,
       });
     });
 });
@@ -85,24 +91,51 @@ app.get('/api/courses/recommended', (req, res) => {
   const { userId } = req.query;
   if (!userId) {
     return res.status(404).send({
-      'type': 'error',
-      'text': 'No user sent',
+      type: 'error',
+      text: 'No user sent',
     });
   }
-  const q = connection.query(queries.recommendedCoursesQuery, [userId, userId],
+
+  const q = connection.query(queries.recommendedCoursesQuery, [userId, userId, userId],
     (err, response) => {
       if (err) {
         return res.status(500).send({
-          'type': 'error',
-          'text': 'No response to display',
-          'query': q.sql,
+          type: 'error',
+          err,
+          query: q.sql,
         });
       }
       res.send({
-        'type': 'success',
-        'response': response,
+        type: 'success',
+        response,
       });
     });
+});
+
+app.post('/api/storeCourses', (req, res) => {
+  const { userId, courseIds } = req.body;
+  databaseHandler.validateCourses(connection, courseIds, (err, isValid) => {
+    if (err || !isValid) {
+      return res.status(500).send({
+        type: 'error',
+        text: 'Total credits are not valid',
+        err,
+      });
+    }
+    databaseHandler.storeCourses(connection, courseIds, userId, (err) => {
+      if (err) {
+        return res.status(500).send({
+          type: 'error',
+          text: 'Unable to insert in database',
+          err,
+        });
+      }
+      res.send({
+        type: 'success',
+        text: 'stored',
+      });
+    });
+  });
 });
 
 // Always return the main index.html, so react-router render the route in the client
