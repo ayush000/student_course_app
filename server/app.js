@@ -48,7 +48,7 @@ app.get('/api/checkUser', (req, res) => {
       const errorObj = {
         type: 'error',
         error,
-        query: error.query,
+        text: 'No such user',
       };
       console.log(errorObj, q.sql);
       return res.send(errorObj);
