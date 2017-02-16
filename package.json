@@ -20,7 +20,7 @@
   },
   "scripts": {
     "dev": "nodemon server/app.js",
-    "start": "NODE_ENV=production react-scripts build && node server/app.js",
+    "start": "NODE_ENV=production node server/app.js",
     "react": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
