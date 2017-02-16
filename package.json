@@ -1,7 +1,9 @@
 {
   "name": "student_course_app",
   "version": "0.1.0",
-  "private": true,
+  "engines": {
+    "node": "7.5.0"
+  },
   "devDependencies": {
     "nodemon": "^1.11.0"
   },
