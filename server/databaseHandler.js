@@ -10,7 +10,7 @@ const constants = require('../constants');
  */
 function checkUser(connection, userId, callback) {
   const q = connection.query(queries.checkUserQuery, [userId], (err, response) => {
-    if (err || 'response'.length === 0) {
+    if (err || response.length === 0) {
       const errorObj = {
         type: 'error',
         err,
