@@ -27,8 +27,9 @@ export default class CourseTable extends React.Component {
         }
       })
       .then(response => response.json())
-      .then(res => {
-        const dataSource = res.response;
+      .then(response => {
+        if (response.type === 'error') throw new Error(response.text);
+        const dataSource = response.data;
         const professors = dataSource.map(row => row['Taught by']);
         const uniqProfessors = [...new Set(professors)];
         this.setState({

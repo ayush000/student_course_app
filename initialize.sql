@@ -65,6 +65,5 @@ CREATE TABLE `student_course` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `student_id` int(11) NOT NULL,
   `course_id` int(11) NOT NULL,
-  `semester` tinyint(4) NOT NULL,
   PRIMARY KEY (`id`)
 );

@@ -2,8 +2,7 @@ const express = require('express');
 const morgan = require('morgan');
 const path = require('path');
 const cors = require('cors');
-
-const queries = require('./queries');
+const async = require('async');
 const bodyParser = require('body-parser');
 const databaseHandler = require('./databaseHandler');
 const app = express();
@@ -21,99 +20,60 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
 app.use(bodyParser.json());
 
+/**
+ * Check whether a user exists. Used as a login check.
+ * query param = student ID
+ * Returns student name on success
+ */
 app.get('/api/checkUser', (req, res) => {
   const userId = req.query.id;
-  const q = connection.query(queries.checkUserQuery, [userId], (error, response) => {
-    if (error || response.length === 0) {
-      const errorObj = {
-        type: 'error',
-        error,
-        text: 'No such user',
-      };
-      console.log(errorObj, q.sql);
-      return res.send(errorObj);
-    }
-    res.send({
-      'type': 'success',
-      'userName': response[0].name,
-    });
+  databaseHandler.checkUser(connection, userId, (err, response) => {
+    if (err) return res.send(err);
+    res.send(response);
   });
 });
 
-
-
+/**
+ * Get all courses for a userId.
+ * query param = student ID
+ * Returns array of course objects on success.
+ */
 app.get('/api/courses/all', (req, res) => {
   const { userId } = req.query;
-  if (!userId) {
-    return res.status(404).send({
-      type: 'error',
-      text: 'No user sent',
-    });
-  }
-
-  const q = connection.query(queries.allCoursesQuery, [userId, userId, userId],
-    (err, response) => {
-      if (err) {
-        return res.status(500).send({
-          type: 'error',
-          err,
-          query: q.sql,
-        });
-      }
-      res.send({
-        type: 'success',
-        response,
-      });
-    });
+  databaseHandler.getAllCourses(connection, userId, (err, response) => {
+    if (err) return res.send(err);
+    res.send(response);
+  });
 });
 
+/**
+ * Get recommended courses for a userId.
+ * query param = student ID
+ * Returns array of course objects on success.
+ */
 app.get('/api/courses/recommended', (req, res) => {
   const { userId } = req.query;
-  if (!userId) {
-    return res.status(404).send({
-      type: 'error',
-      text: 'No user sent',
-    });
-  }
-
-  const q = connection.query(queries.recommendedCoursesQuery, [userId, userId, userId],
-    (err, response) => {
-      if (err) {
-        return res.status(500).send({
-          type: 'error',
-          err,
-          query: q.sql,
-        });
-      }
-      res.send({
-        type: 'success',
-        response,
-      });
-    });
+  databaseHandler.getRecommendedCourses(connection, userId, (err, response) => {
+    if (err) return res.send(err);
+    res.send(response);
+  });
 });
 
+/**
+ * Store courses chosen by a student, after performing all validations
+ */
 app.post('/api/storeCourses', (req, res) => {
   const { userId, courseIds } = req.body;
-  databaseHandler.validateCourses(connection, courseIds, (err, isValid) => {
-    if (err || !isValid) {
-      return res.status(500).send({
-        type: 'error',
-        text: 'Total credits are not valid',
-        err,
-      });
-    }
-    databaseHandler.storeCourses(connection, courseIds, userId, (err) => {
-      if (err) {
-        return res.status(500).send({
-          type: 'error',
-          text: 'Unable to insert in database',
-          err,
-        });
-      }
-      res.send({
-        type: 'success',
-        text: 'stored',
-      });
+  const validationTasks = [
+    databaseHandler.validateCourses.bind(null, connection, userId, courseIds),
+    databaseHandler.checkUser.bind(null, connection, userId),
+    databaseHandler.validateCredits.bind(null, connection, courseIds),
+  ];
+  async.parallel(validationTasks, (err) => {
+    if (err) return res.send(err);
+    databaseHandler.storeCourses(connection, courseIds, userId, (err, response) => {
+      if (err) return res.send(err);
+      res.send(response);
     });
   });
 });

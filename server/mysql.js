@@ -10,7 +10,7 @@ function handleDisconnect() {
       user: 'ayush',
       password: 'f6Ugm4cgPfGr',
       database: 'course_app',
-      debug: NODE_ENV === 'production' ? false : ['ComQueryPacket'],
+      debug: ['ComQueryPacket'],
     });
   }
   connection.connect(function (err) {              // The server is either down
@@ -31,7 +31,9 @@ function handleDisconnect() {
 }
 
 handleDisconnect();
-setInterval(function () {
-  connection.query('SELECT 1');
-}, 5000);
+if (NODE_ENV === 'production') {
+  setInterval(function () {
+    connection.query('SELECT 1');
+  }, 5000);
+}
 module.exports = connection;

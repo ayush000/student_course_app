@@ -28,8 +28,18 @@ export default class App extends React.Component {
       body: JSON.stringify({ userId, courseIds }),
     };
     fetch(`${baseUrl}/api/storeCourses`, options)
+      .then(response => {
+        if (response && response.status < 400) {
+          return response;
+        } else {
+          const error = new Error('Unable to visit api');
+          error.response = response;
+          throw error;
+        }
+      })
       .then(response => response.json())
       .then(response => {
+        if(response.type === 'error') throw new Error(response.text);
         alert(response.text);
         this.logout();
       });
